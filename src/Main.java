@@ -5,33 +5,59 @@ import java.util.ArrayList;
  */
 public class Main {
 
-    static final int P = 1;
-    static final int T = 1;
+    static final int P = 5;
+    static final int T = 3;
     public static void main(String[] args)
     {
         int i;
         Passenger[] passengers = new Passenger[P];
         Taxi[] taxis = new Taxi[T];
 
-        //SAO NECESSARIAS SOH POR AGORA
-      /*  int[] matrixSize = new int[2];
-        matrixSize[0] = 5; matrixSize[1] = 8;
 
-        World matrixWorld = new World(matrixSize, p, t);
-        matrixWorld.printMatrix();*/
+        int[][] initialTaxiPositionTemp = {
+                { 0, 3},
+                { 3, 1},
+                { 4, 0}
+        };
 
+        int[][] initialPositionTemp = {
+                {1, 2},
+                {1, 2},
+                {2, 3},
+                {3, 1},
+                {3, 0}
+        };
 
-        //COLOQUEI ISSO DAQUI SOH PARA PODER CONSTRUIR OS TAXISTAS
-        int[] initialTaxiPositionTemp = new int[2];
+        int[][] destinationPosition = {
+                { 4, 1},
+                {1 ,3},
+                {2, 2},
+                {3, 3},
+                {0, 0}
+        };
+
+        for (i = 0; i < T; i++) {
+            System.out.print("Posição do taxi " + i + " : ");
+            for (int j = 0; j < 2; j++) {
+                System.out.print(initialTaxiPositionTemp[i][j] + ", ");
+            }
+            System.out.println();
+
+        }
+
+        //PARA UM TESTE SIMPLES
+   /*     int[] initialTaxiPositionTemp = new int[2];
         int[] destinationPositionTemp = new int[2];
-        int[] initialPositionTemp = new int[2];
+        int[] initialPositionTemp = new int[2];*/
 
 
 
         for (i = 0; i < T; i++) {
-            initialTaxiPositionTemp[0] = 3;
-            initialTaxiPositionTemp[1] = 5;
-            taxis[i] = new Taxi(i, initialPositionTemp);
+            int[] temp = new int[2];
+            for (int j = 0; j < 2; j++) {
+                temp[j] = initialTaxiPositionTemp[i][j];
+            }
+            taxis[i] = new Taxi(i, temp);
         }
 
         Monitor monitor = new Monitor(T, P, taxis);
@@ -39,14 +65,16 @@ public class Main {
 
        /* for (i = 0; i < T; i++) {
            taxis[i].start();
-        }*/
+        }/*/
         for (i = 0; i < P; i++)
         {
-            initialPositionTemp[0] = 1;
-            initialPositionTemp[1] = 2;
-            destinationPositionTemp[0] = 4;
-            destinationPositionTemp[1] = 3;
-            passengers[i] = new Passenger(i, monitor, initialPositionTemp, initialPositionTemp);
+            int[] temp = new int[2];
+            int[] tempDestination = new int[2];
+            for (int j = 0; j < 2; j++) {
+                temp[j] = initialPositionTemp[i][j];
+                tempDestination[j] = destinationPosition[i][j];
+            }
+            passengers[i] = new Passenger(i, monitor, temp, tempDestination);
             passengers[i].start();
 
         }

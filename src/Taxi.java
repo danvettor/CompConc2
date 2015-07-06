@@ -5,7 +5,7 @@ public class Taxi extends Thread{
 
     public int id;
     public Monitor m;
-    private int position[] = new int[2];
+    public int position[] = new int[2];
 
 
     public Taxi(int id, int[] initialPosition)
