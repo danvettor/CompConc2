@@ -1,43 +1,63 @@
-import java.util.ArrayList;
-
 /**
  * Created by danilo on 06/07/2015.
  */
 public class Passenger extends Thread {
-    public int id;
-    public Monitor m;
-    public int[] initialPosition, destinationPosition;
-    public int taxiChosenID;
-    public Passenger(int id, Monitor m, int[] initialPosition, int[] destinationPosition)
+
+    private int id, delay;
+    private Monitor monitor;
+    private int[] currentPosition, destinationPosition;
+    private boolean busy;
+
+    public Passenger(int id, int[] currentPosition, int[] destinationPosition)
     {
         this.id = id;
-        this.m = m;
-        this.initialPosition = initialPosition;
+        this.currentPosition = currentPosition;
         this.destinationPosition = destinationPosition;
+        this.busy = false;
     }
 
-    public void run()
+    public int getInitialX()
     {
-        for(int i = 0; i < Main.P; i++)
-        {
-            double j=777777777.7;
-            //PRIMEIRO ESCOLHO O ID DO TAXI E DEPOIS INICIALIZO A FUNCAO USANDO O ID QUE EU RETORNEI
-            this.taxiChosenID = this.m.chooseTaxi(this.id, this.initialPosition);
-            this.m.getTaxi(this.id, this.taxiChosenID, this.initialPosition);
-
-            for (i = 0; i < 100000000; i++) {j=j/2;}// for pra ganhar tempo
-
-            this.m.leaveTaxi(this.id, this.taxiChosenID, this.destinationPosition);
-
-            //sleep bobao
-            try {
-                sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        return currentPosition[0];
     }
 
+    public int getInitialY()
+    {
+        return currentPosition[1];
+    }
 
+    public int getDestinationY()
+    {
+        return destinationPosition[0];
+    }
 
+    public int getDestinationX()
+    {
+        return destinationPosition[0];
+    }
+    public int getID()
+    {
+        return this.id;
+    }
+    public void setPosition(int x, int y)
+    {
+        this.currentPosition[0] = x;
+        this.currentPosition[1] = y;
+    }
+
+    public boolean getBusy(){
+        return busy;
+    }
+
+    public void setBusy(boolean busy) {
+        this.busy = busy;
+    }
+
+    public int getDelay() {
+        return delay;
+    }
+
+    public void setDelay(int delay) {
+        this.delay = delay;
+    }
 }

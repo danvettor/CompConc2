@@ -4,72 +4,99 @@ import java.util.ArrayList;
  * Created by danilo on 06/07/2015.
  */
 public class Monitor {
-    public int numTaxis, numPassenger, taxiWaiting, passengerWaiting;
-    public Taxi[] taxiList;
 
+    private Passenger[] passengerWaitingList, passengerArrivedList;
+    private Taxi[] taxiList;
+    private int passengerCount;
 
-    public Monitor(int numTaxis, int numPassenger, Taxi[] taxiList){
-        this.numTaxis = numTaxis;
-        this.numPassenger = numPassenger;
-        this.taxiWaiting = 0;
-        this.passengerWaiting = 0;
+    public Monitor(int passengerListSize, Taxi[] taxiList){
+        this.passengerWaitingList = new Passenger[passengerListSize];
+        this.passengerArrivedList = new Passenger[passengerListSize];
+        this.passengerCount = passengerListSize;
         this.taxiList = taxiList;
-
     }
 
-    public synchronized int chooseTaxi(int passengerID, int[] passengerInitialPosition)
+
+    public Passenger[] getArrivedPassengerList() {
+        return passengerArrivedList;
+    }
+
+    public Passenger[] getPassengerList() {
+        return passengerWaitingList;
+    }
+
+    public Taxi[] getTaxiList() {
+        return taxiList;
+    }
+
+    public synchronized Passenger getNearestPassenger(Taxi taxi)
     {
-        int index, shortestPath, x, y, pathSum;
-        index = 0;
-        shortestPath = 10000000;
-       //TESTA SE HÁ TAXI DISPONIVEL
-        try {
-            while (numTaxis <= 0) {
-                System.out.println("Passageiro " + passengerID + " esta esperando");
-                this.passengerWaiting++;
-                System.out.println("Existem " + this.passengerWaiting + " passageiros esperando");
-                wait();
-                this.passengerWaiting--;
+        int line = taxi.getX();
+        int column = taxi.getY();
+        int shortestPath = 100000;
+        Passenger nearest = null;
+        for (Passenger passenger : passengerWaitingList)
+        {
+            int sum;
+            if(passenger != null)
+            {
+                sum = Math.abs(line - passenger.getInitialX()) + Math.abs(column - passenger.getInitialY());
+                if (sum < shortestPath && !passenger.getBusy())
+                {
+                    shortestPath = sum;
+                    nearest = passenger;
+                    nearest.setBusy(true);
+                    nearest.setDelay(sum*1000);
+                }
+            }
+        }
+        return nearest;
+    }
+    public synchronized void transportNearestPassenger(Taxi taxi, Passenger passenger)
+    {
+        System.out.println("Taxi " + taxi.getID() + " transportando o passageiro "+ passenger.getID());
+        System.out.println("Taxi " + taxi.getID() + " ocupado");
+        taxi.setPosition(passenger.getDestinationX(), passenger.getDestinationY());
+        passenger.setPosition(passenger.getDestinationX(), passenger.getDestinationY());
+    }
+
+    public synchronized void leavePassenger(Taxi taxi, Passenger passenger)
+    {
+        System.out.println("Taxi " + taxi.getID() + " deixando o passageiro "+ passenger.getID());
+        System.out.println("Taxi " + taxi.getID() + " livre e esperando nova chamada");
+        passenger.setBusy(false);
+        passengerArrivedList[passenger.getID()] = passenger;
+        passengerWaitingList[passenger.getID()] =  null;
+        passengerCount--;
+    }
+
+    public synchronized void enterPassenger(Passenger passenger) {
+        passengerWaitingList[passenger.getID()] = passenger;
+        passenger.start();
+    }
+
+    public synchronized boolean hasPassengerLeft() {
+        return (passengerCount > 0);
+    }
+
+    public void output()
+    {
+        try{
+            for(Taxi taxi: taxiList)
+            {
+                taxi.join();
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        //CASO HAJA BUSCA O DE MENOR CAMINHO
-        for( Taxi taxi : taxiList)
+        System.out.println();
+        System.out.println("Posicoes finais dos taxistas:");
+        System.out.println();
+
+        for(Taxi taxi: taxiList)
         {
-            x = Math.abs(passengerInitialPosition[0] - taxi.position[0]);
-            y = Math.abs(passengerInitialPosition[1] - taxi.position[1]);
-            pathSum = x+y;
-            if(pathSum < shortestPath){
-                shortestPath = pathSum;
-                index = taxi.id;
-            }
+            System.out.println(taxi.getX() + " " + taxi.getY());
         }
-        return index;
-
     }
-    public synchronized void getTaxi(int passengerID, int taxiID, int[] passengerInitialPosition)
-    {
-        //TODO Colocar uma condicao que bloqueie alguem tentando pegar um taxi ocupado
-        numTaxis--;
-        System.out.println("Taxi " + taxiID + " na posicao "+ "( " + this.taxiList[taxiID].position[0] +", " + this.taxiList[taxiID].position[1] + " )");
-
-        this.taxiList[taxiID].position = passengerInitialPosition;
-        System.out.println("Passageiro " + passengerID + " pegou o taxi " + taxiID + " na posicao "+ "( " + this.taxiList[taxiID].position[0] +", " + this.taxiList[taxiID].position[1] + " )");
-        System.out.println("Existem " + this.numTaxis + " taxis disponiveis");
-
-
-
-    }
-    public synchronized void leaveTaxi(int passengerID, int taxiID, int[] passengerDestinationPosition)
-    {
-        this.taxiList[taxiID].position = passengerDestinationPosition;
-        System.out.println("Passageiro " + passengerID + " deixou o taxi " + taxiID +" na posicao : " + "( " + this.taxiList[taxiID].position[0] +", " + this.taxiList[taxiID].position[1] + " )" );
-        numTaxis++;
-        notifyAll();;
-        System.out.println("Existem " + this.numTaxis + " disponiveis");
-
-    }
-
 }
 

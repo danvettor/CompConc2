@@ -6,7 +6,7 @@ import java.util.ArrayList;
 public class Main {
 
     static final int P = 5;
-    static final int T = 3;
+    static final int T = 5;
     public static void main(String[] args)
     {
         int i;
@@ -17,7 +17,9 @@ public class Main {
         int[][] initialTaxiPositionTemp = {
                 { 0, 3},
                 { 3, 1},
-                { 4, 0}
+                { 4, 0},
+                { 1, 2},
+                { 3, 4}
         };
 
         int[][] initialPositionTemp = {
@@ -36,36 +38,38 @@ public class Main {
                 {0, 0}
         };
 
-        for (i = 0; i < T; i++) {
-            System.out.print("Posição do taxi " + i + " : ");
+        //PRINT
+        for (i = 0; i < P; i++) {
+            System.out.print("Posicao do passageiro " + i + ": ");
             for (int j = 0; j < 2; j++) {
-                System.out.print(initialTaxiPositionTemp[i][j] + ", ");
+                System.out.print(initialPositionTemp[i][j] + ", ");
+            }
+            System.out.print("Posicao destino do passageiro " + i + ": ");
+            for (int j = 0; j < 2; j++) {
+                System.out.print(destinationPosition[i][j] + ", ");
             }
             System.out.println();
 
         }
 
-        //PARA UM TESTE SIMPLES
-   /*     int[] initialTaxiPositionTemp = new int[2];
-        int[] destinationPositionTemp = new int[2];
-        int[] initialPositionTemp = new int[2];*/
-
-
+        Monitor monitor = new Monitor(P, taxis);
 
         for (i = 0; i < T; i++) {
             int[] temp = new int[2];
             for (int j = 0; j < 2; j++) {
                 temp[j] = initialTaxiPositionTemp[i][j];
             }
-            taxis[i] = new Taxi(i, temp);
+            taxis[i] = new Taxi(i, monitor,  temp);
+            taxis[i].start();
+        }
+        for (i = 0; i < T; i++) {
+            System.out.print("Posicao do taxi " + i + ": ");
+            for (int j = 0; j < 2; j++) {
+                System.out.print(initialTaxiPositionTemp[i][j] + ", ");
+            }
+            System.out.println();
         }
 
-        Monitor monitor = new Monitor(T, P, taxis);
-
-
-       /* for (i = 0; i < T; i++) {
-           taxis[i].start();
-        }/*/
         for (i = 0; i < P; i++)
         {
             int[] temp = new int[2];
@@ -74,9 +78,14 @@ public class Main {
                 temp[j] = initialPositionTemp[i][j];
                 tempDestination[j] = destinationPosition[i][j];
             }
-            passengers[i] = new Passenger(i, monitor, temp, tempDestination);
-            passengers[i].start();
-
+            Passenger passenger = new Passenger(i, temp, tempDestination);
+            monitor.enterPassenger(passenger);
         }
+
+        monitor.output();
+
+
+
+
     }
 }
